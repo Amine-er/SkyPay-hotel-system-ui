@@ -1,1 +1,1 @@
-# SkyPay-hotel-system-ui
+# SkyPay-Hotel-Reservation-System
