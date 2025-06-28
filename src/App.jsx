@@ -28,5 +28,4 @@ const App = () => {
     <HomePage onNavigate={handleNavigate} onRoomSelect={handleRoomSelect} />
   );
 };
-
 export default App;

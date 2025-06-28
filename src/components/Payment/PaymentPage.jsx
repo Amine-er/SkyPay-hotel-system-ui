@@ -1,39 +1,57 @@
 import React, { useState } from 'react';
+import makeReservation from '@/lib/makeReservation';
+import formatRoomType from '@/lib/formatRoomType';
 import Header from '@/components/Home/Header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { CreditCard, CheckCircle, XCircle } from 'lucide-react';
+import { CreditCard, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 
 const PaymentPage = ({ onNavigate, selectedRoom }) => {
   const [formData, setFormData] = useState({
     startDate: '',
     endDate: '',
-    userId: Math.floor(Math.random() * 10000) + 1,
+    userId: 1,
     fullName: '',
     cardNumber: '',
     expiryDate: '',
-    cvv: ''
+    cvv: '',
   });
 
   const [showPaymentResult, setShowPaymentResult] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [paymentMessage, setPaymentMessage] = useState('');
+  const [reservationReference, setReservationReference] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const validateForm = () => {
-    const { startDate, endDate, fullName, cardNumber, expiryDate, cvv } = formData;
-    
-    if (!startDate || !endDate || !fullName || !cardNumber || !expiryDate || !cvv) {
+    const { startDate, endDate, fullName, cardNumber, expiryDate, cvv } =
+      formData;
+
+    if (
+      !startDate ||
+      !endDate ||
+      !fullName ||
+      !cardNumber ||
+      !expiryDate ||
+      !cvv
+    ) {
       return false;
     }
 
@@ -41,36 +59,56 @@ const PaymentPage = ({ onNavigate, selectedRoom }) => {
       return false;
     }
 
+    // Basic card number validation (should be 16 digits)
+    if (cardNumber.replace(/\s/g, '').length < 13) {
+      return false;
+    }
+
     return true;
   };
 
-  const simulatePayment = () => {
-    // Simulate random payment success/failure and room availability
-    const isPaymentSuccessful = Math.random() > 0.2; // 80% success rate
-    const isRoomAvailable = Math.random() > 0.1; // 90% availability rate
-
-    if (!isRoomAvailable) {
-      setPaymentSuccess(false);
-      setPaymentMessage('Sorry, this room is no longer available for the selected dates.');
-    } else if (!isPaymentSuccessful) {
-      setPaymentSuccess(false);
-      setPaymentMessage('Payment failed. Please check your card details and try again.');
-    } else {
-      setPaymentSuccess(true);
-      setPaymentMessage('Payment successful! Your reservation has been confirmed.');
-    }
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       alert('Please fill in all fields correctly');
       return;
     }
 
-    simulatePayment();
-    setShowPaymentResult(true);
+    setIsProcessing(true);
+
+    try {
+      const reservationData = {
+        userId: formData.userId,
+        fullName: formData.fullName,
+        cardNumber: formData.cardNumber.replace(/\s/g, ''), // Remove spaces
+        expiryDate: formData.expiryDate,
+        cvv: formData.cvv,
+        amount: calculateNights() * selectedRoom.price,
+      };
+
+      const reference = await makeReservation(
+        selectedRoom.id,
+        formData.startDate,
+        formData.endDate,
+        reservationData
+      );
+
+      setPaymentSuccess(true);
+      setReservationReference(reference);
+      setPaymentMessage(
+        `Payment successful! Your reservation has been confirmed.`
+      );
+    } catch (error) {
+      setPaymentSuccess(false);
+      setPaymentMessage(
+        'Payment failed. Please check your details and try again.'
+      );
+      console.error('Payment error:', error);
+    } finally {
+      setIsProcessing(false);
+      setShowPaymentResult(true);
+    }
   };
 
   const closePaymentResult = () => {
@@ -106,6 +144,30 @@ const PaymentPage = ({ onNavigate, selectedRoom }) => {
 
   const totalAmount = calculateNights() * selectedRoom.price;
 
+  // Format card number with spaces
+  const formatCardNumber = (value) => {
+    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+    const matches = v.match(/\d{4,16}/g);
+    const match = (matches && matches[0]) || '';
+    const parts = [];
+    for (let i = 0, len = match.length; i < len; i += 4) {
+      parts.push(match.substring(i, i + 4));
+    }
+    if (parts.length) {
+      return parts.join(' ');
+    } else {
+      return v;
+    }
+  };
+
+  const handleCardNumberChange = (e) => {
+    const formatted = formatCardNumber(e.target.value);
+    setFormData((prev) => ({
+      ...prev,
+      cardNumber: formatted,
+    }));
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header onNavigate={onNavigate} currentPage="payment" />
@@ -114,21 +176,27 @@ const PaymentPage = ({ onNavigate, selectedRoom }) => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Room Summary */}
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">Reservation Summary</h2>
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                Reservation Summary
+              </h2>
               <div className="space-y-4">
                 <img
-                  src={selectedRoom.images[0]}
-                  alt={selectedRoom.type}
+                  src={selectedRoom.imageUrl[0]}
+                  alt={formatRoomType(selectedRoom.type)}
                   className="w-full h-48 object-cover rounded-lg"
                 />
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-800">{selectedRoom.type}</h3>
+                  <h3 className="text-xl font-semibold text-gray-800">
+                    {formatRoomType(selectedRoom.type)}
+                  </h3>
                   <p className="text-gray-600">{selectedRoom.description}</p>
                 </div>
                 <div className="border-t pt-4">
                   <div className="flex justify-between mb-2">
                     <span>Room ID:</span>
-                    <span className="font-semibold">#{selectedRoom.id.toString().padStart(4, '0')}</span>
+                    <span className="font-semibold">
+                      #{selectedRoom.id.toString().padStart(1, '0')}
+                    </span>
                   </div>
                   <div className="flex justify-between mb-2">
                     <span>User ID:</span>
@@ -136,17 +204,21 @@ const PaymentPage = ({ onNavigate, selectedRoom }) => {
                   </div>
                   <div className="flex justify-between mb-2">
                     <span>Price per night:</span>
-                    <span className="font-semibold">${selectedRoom.price}</span>
+                    <span className="font-semibold">
+                      {selectedRoom.price}MAD
+                    </span>
                   </div>
                   {calculateNights() > 0 && (
                     <>
                       <div className="flex justify-between mb-2">
                         <span>Number of nights:</span>
-                        <span className="font-semibold">{calculateNights()}</span>
+                        <span className="font-semibold">
+                          {calculateNights()}
+                        </span>
                       </div>
                       <div className="flex justify-between text-lg font-bold text-blue-600">
                         <span>Total Amount:</span>
-                        <span>${totalAmount}</span>
+                        <span>{totalAmount}MAD</span>
                       </div>
                     </>
                   )}
@@ -156,7 +228,9 @@ const PaymentPage = ({ onNavigate, selectedRoom }) => {
 
             {/* Payment Form */}
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6">Payment Details</h2>
+              <h2 className="text-2xl font-bold text-gray-800 mb-6">
+                Payment Details
+              </h2>
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -168,6 +242,7 @@ const PaymentPage = ({ onNavigate, selectedRoom }) => {
                       value={formData.startDate}
                       onChange={handleInputChange}
                       required
+                      min={new Date().toISOString().split('T')[0]}
                     />
                   </div>
                   <div>
@@ -179,6 +254,10 @@ const PaymentPage = ({ onNavigate, selectedRoom }) => {
                       value={formData.endDate}
                       onChange={handleInputChange}
                       required
+                      min={
+                        formData.startDate ||
+                        new Date().toISOString().split('T')[0]
+                      }
                     />
                   </div>
                 </div>
@@ -205,7 +284,8 @@ const PaymentPage = ({ onNavigate, selectedRoom }) => {
                       type="text"
                       placeholder="1234 5678 9012 3456"
                       value={formData.cardNumber}
-                      onChange={handleInputChange}
+                      onChange={handleCardNumberChange}
+                      maxLength={19}
                       required
                     />
                     <CreditCard className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -218,8 +298,7 @@ const PaymentPage = ({ onNavigate, selectedRoom }) => {
                     <Input
                       id="expiryDate"
                       name="expiryDate"
-                      type="text"
-                      placeholder="MM/YY"
+                      type="date"
                       value={formData.expiryDate}
                       onChange={handleInputChange}
                       required
@@ -234,6 +313,7 @@ const PaymentPage = ({ onNavigate, selectedRoom }) => {
                       placeholder="123"
                       value={formData.cvv}
                       onChange={handleInputChange}
+                      maxLength={4}
                       required
                     />
                   </div>
@@ -241,9 +321,19 @@ const PaymentPage = ({ onNavigate, selectedRoom }) => {
 
                 <Button
                   onClick={handleSubmit}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg"
+                  disabled={isProcessing}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg disabled:opacity-50"
                 >
-                  Complete Payment ${totalAmount > 0 ? totalAmount : selectedRoom.price}
+                  {isProcessing ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    `Complete Payment ${
+                      totalAmount > 0 ? totalAmount : selectedRoom.price
+                    }MAD`
+                  )}
                 </Button>
               </div>
             </div>
@@ -261,10 +351,22 @@ const PaymentPage = ({ onNavigate, selectedRoom }) => {
               ) : (
                 <XCircle className="h-6 w-6 text-red-600" />
               )}
-              <span>{paymentSuccess ? 'Payment Successful!' : 'Payment Failed'}</span>
+              <span>
+                {paymentSuccess ? 'Payment Successful!' : 'Payment Failed'}
+              </span>
             </DialogTitle>
             <DialogDescription className="pt-4">
               {paymentMessage}
+              {paymentSuccess && reservationReference && (
+                <div className="mt-4 p-3 bg-green-50 rounded-lg">
+                  <p className="text-sm font-medium text-green-800">
+                    Reservation Reference:
+                  </p>
+                  <p className="text-sm text-green-700 font-mono break-all">
+                    {reservationReference}
+                  </p>
+                </div>
+              )}
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end space-x-2 pt-4">

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import formatRoomType from '@/lib/formatRoomType';
 import {
   Card,
   CardContent,
@@ -13,21 +14,19 @@ const RoomCard = ({ room, onReservation }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const nextImage = () => {
-    setCurrentImageIndex((prev) => (prev + 1) % room.images.length);
+    setCurrentImageIndex((prev) => (prev + 1) % room.imageUrl.length);
   };
 
   const prevImage = () => {
-    setCurrentImageIndex(
-      (prev) => (prev - 1 + room.images.length) % room.images.length
-    );
+    setCurrentImageIndex((prev) => (prev - 1 + room.imageUrl.length) % room.imageUrl.length);
   };
 
   return (
     <Card className="w-full max-w-md mx-auto overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
       <div className="relative">
         <img
-          src={room.images[currentImageIndex]}
-          alt={`${room.type} - Image ${currentImageIndex + 1}`}
+          src={room.imageUrl[currentImageIndex]}
+          alt={`${formatRoomType(room.type)} - Image ${currentImageIndex + 1}`}
           className="w-full h-48 object-cover"
         />
         <Button
@@ -47,7 +46,7 @@ const RoomCard = ({ room, onReservation }) => {
           <ChevronRight className="h-4 w-4" />
         </Button>
         <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1">
-          {room.images.map((_, index) => (
+          {room.imageUrl.map((_, index) => (
             <div
               key={index}
               className={`w-2 h-2 rounded-full ${
@@ -58,18 +57,12 @@ const RoomCard = ({ room, onReservation }) => {
         </div>
       </div>
       <CardHeader>
-        <CardTitle className="text-xl font-bold text-gray-800">
-          {room.type}
-        </CardTitle>
-        <CardDescription className="text-gray-600">
-          {room.description}
-        </CardDescription>
+        <CardTitle className="text-xl font-bold text-gray-800">{formatRoomType(room.type)}</CardTitle>
+        <CardDescription className="text-gray-600">{room.description}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="flex justify-between items-center">
-          <span className="text-2xl font-bold text-blue-600">
-            {room.price}DH/night
-          </span>
+          <span className="text-2xl font-bold text-blue-600">{room.price}MAD/night</span>
           <Button
             onClick={() => onReservation(room)}
             className="bg-blue-600 hover:bg-blue-700 text-white"
