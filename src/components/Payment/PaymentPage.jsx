@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import makeReservation from '@/lib/makeReservation';
 import formatRoomType from '@/lib/formatRoomType';
+import calculateNights from '@/lib/calculateNights';
+import validatePaymentForm from '@/lib/validatePaymentForm';
+import formatCardNumber from '@/lib/formatCardNumber';
 import Header from '@/components/Home/Header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -40,37 +43,10 @@ const PaymentPage = ({ onNavigate, selectedRoom }) => {
     }));
   };
 
-  const validateForm = () => {
-    const { startDate, endDate, fullName, cardNumber, expiryDate, cvv } =
-      formData;
-
-    if (
-      !startDate ||
-      !endDate ||
-      !fullName ||
-      !cardNumber ||
-      !expiryDate ||
-      !cvv
-    ) {
-      return false;
-    }
-
-    if (new Date(startDate) >= new Date(endDate)) {
-      return false;
-    }
-
-    // Basic card number validation (should be 16 digits)
-    if (cardNumber.replace(/\s/g, '').length < 13) {
-      return false;
-    }
-
-    return true;
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!validateForm()) {
+    if (!validatePaymentForm(formData)) {
       alert('Please fill in all fields correctly');
       return;
     }
@@ -84,7 +60,7 @@ const PaymentPage = ({ onNavigate, selectedRoom }) => {
         cardNumber: formData.cardNumber.replace(/\s/g, ''), // Remove spaces
         expiryDate: formData.expiryDate,
         cvv: formData.cvv,
-        amount: calculateNights() * selectedRoom.price,
+        amount: nights * selectedRoom.price,
       };
 
       const reference = await makeReservation(
@@ -131,34 +107,9 @@ const PaymentPage = ({ onNavigate, selectedRoom }) => {
     );
   }
 
-  const calculateNights = () => {
-    if (formData.startDate && formData.endDate) {
-      const start = new Date(formData.startDate);
-      const end = new Date(formData.endDate);
-      const diffTime = Math.abs(end - start);
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      return diffDays;
-    }
-    return 0;
-  };
+  const nights = calculateNights(formData.startDate, formData.endDate);
 
-  const totalAmount = calculateNights() * selectedRoom.price;
-
-  // Format card number with spaces
-  const formatCardNumber = (value) => {
-    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
-    const matches = v.match(/\d{4,16}/g);
-    const match = (matches && matches[0]) || '';
-    const parts = [];
-    for (let i = 0, len = match.length; i < len; i += 4) {
-      parts.push(match.substring(i, i + 4));
-    }
-    if (parts.length) {
-      return parts.join(' ');
-    } else {
-      return v;
-    }
-  };
+  const totalAmount = nights * selectedRoom.price;
 
   const handleCardNumberChange = (e) => {
     const formatted = formatCardNumber(e.target.value);
@@ -174,7 +125,6 @@ const PaymentPage = ({ onNavigate, selectedRoom }) => {
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Room Summary */}
             <div className="bg-white rounded-lg shadow-md p-6">
               <h2 className="text-2xl font-bold text-gray-800 mb-4">
                 Reservation Summary
@@ -208,13 +158,11 @@ const PaymentPage = ({ onNavigate, selectedRoom }) => {
                       {selectedRoom.price}MAD
                     </span>
                   </div>
-                  {calculateNights() > 0 && (
+                  {nights > 0 && (
                     <>
                       <div className="flex justify-between mb-2">
                         <span>Number of nights:</span>
-                        <span className="font-semibold">
-                          {calculateNights()}
-                        </span>
+                        <span className="font-semibold">{nights}</span>
                       </div>
                       <div className="flex justify-between text-lg font-bold text-blue-600">
                         <span>Total Amount:</span>
@@ -226,7 +174,6 @@ const PaymentPage = ({ onNavigate, selectedRoom }) => {
               </div>
             </div>
 
-            {/* Payment Form */}
             <div className="bg-white rounded-lg shadow-md p-6">
               <h2 className="text-2xl font-bold text-gray-800 mb-6">
                 Payment Details
@@ -341,7 +288,6 @@ const PaymentPage = ({ onNavigate, selectedRoom }) => {
         </div>
       </main>
 
-      {/* Payment Result Dialog */}
       <Dialog open={showPaymentResult} onOpenChange={setShowPaymentResult}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>

@@ -13,8 +13,8 @@ const Header = ({ onNavigate, currentPage }) => {
           </div>
           <nav className="flex items-center space-x-6">
             {currentPage === 'payment' && (
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 className="flex items-center space-x-1"
                 onClick={() => onNavigate('home')}
               >
@@ -32,7 +32,7 @@ const Header = ({ onNavigate, currentPage }) => {
             </Button>
             <Button variant="ghost" className="flex items-center space-x-1">
               <User className="h-4 w-4" />
-              <span>Login</span>
+              <span>Mohamed Amine</span>
             </Button>
           </nav>
         </div>
