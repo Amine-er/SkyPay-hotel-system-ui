@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import fetchRooms from '@/lib/fetchRooms';
+import fetchRooms from './fetchRooms';
 
 export default function useFetchRooms() {
   const [rooms, setRooms] = useState([]);

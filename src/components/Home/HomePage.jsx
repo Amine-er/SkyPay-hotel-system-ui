@@ -3,7 +3,7 @@ import Header from '@/components/Home/Header';
 import RoomCard from '@/components/Home/RoomCard';
 import { Loader2, XCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import useFetchRooms from '@/hooks/useFetchRooms';
+import useFetchRooms from '@/services/useFetchRooms';
 
 const HomePage = ({ onNavigate, onRoomSelect }) => {
   const { rooms, loading, error } = useFetchRooms();

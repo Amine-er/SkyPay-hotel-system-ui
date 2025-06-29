@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import makeReservation from '@/lib/makeReservation';
-import formatRoomType from '@/lib/formatRoomType';
-import calculateNights from '@/lib/calculateNights';
-import validatePaymentForm from '@/lib/validatePaymentForm';
-import formatCardNumber from '@/lib/formatCardNumber';
+import makeReservation from '@/services/makeReservation';
+import formatRoomType from '@/utils/formatRoomType';
+import calculateNights from '@/utils/calculateNights';
+import validatePaymentForm from '@/utils/validatePaymentForm';
+import formatCardNumber from '@/utils/formatCardNumber';
 import Header from '@/components/Home/Header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

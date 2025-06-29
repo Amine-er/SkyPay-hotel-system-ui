@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import formatRoomType from '@/lib/formatRoomType';
+import formatRoomType from '@/utils/formatRoomType';
 import {
   Card,
   CardContent,
@@ -18,7 +18,9 @@ const RoomCard = ({ room, onReservation }) => {
   };
 
   const prevImage = () => {
-    setCurrentImageIndex((prev) => (prev - 1 + room.imageUrl.length) % room.imageUrl.length);
+    setCurrentImageIndex(
+      (prev) => (prev - 1 + room.imageUrl.length) % room.imageUrl.length
+    );
   };
 
   return (
@@ -57,12 +59,18 @@ const RoomCard = ({ room, onReservation }) => {
         </div>
       </div>
       <CardHeader>
-        <CardTitle className="text-xl font-bold text-gray-800">{formatRoomType(room.type)}</CardTitle>
-        <CardDescription className="text-gray-600">{room.description}</CardDescription>
+        <CardTitle className="text-xl font-bold text-gray-800">
+          {formatRoomType(room.type)}
+        </CardTitle>
+        <CardDescription className="text-gray-600">
+          {room.description}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="flex justify-between items-center">
-          <span className="text-2xl font-bold text-blue-600">{room.price}MAD/night</span>
+          <span className="text-2xl font-bold text-blue-600">
+            {room.price}MAD/night
+          </span>
           <Button
             onClick={() => onReservation(room)}
             className="bg-blue-600 hover:bg-blue-700 text-white"

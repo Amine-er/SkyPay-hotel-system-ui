@@ -8,14 +8,14 @@ const makeReservation = async (roomId, startDate, endDate, reservationData) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(reservationData)
+        body: JSON.stringify(reservationData),
       }
     );
-    
+
     if (!response.ok) {
       throw new Error('Failed to make reservation');
     }
-    
+
     const reservationReference = await response.text();
     return reservationReference.replace(/"/g, ''); // Remove quotes from response
   } catch (error) {
