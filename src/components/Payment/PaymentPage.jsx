@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import makeReservation from '@/services/makeReservation';
 import formatRoomType from '@/utils/formatRoomType';
 import calculateNights from '@/utils/calculateNights';
@@ -18,7 +19,9 @@ import {
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CreditCard, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 
-const PaymentPage = ({ onNavigate, selectedRoom }) => {
+const PaymentPage = ({ selectedRoom }) => {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     startDate: '',
     endDate: '',
@@ -54,10 +57,11 @@ const PaymentPage = ({ onNavigate, selectedRoom }) => {
     setIsProcessing(true);
 
     try {
+      const nights = calculateNights(formData.startDate, formData.endDate);
       const reservationData = {
         userId: formData.userId,
         fullName: formData.fullName,
-        cardNumber: formData.cardNumber.replace(/\s/g, ''), // Remove spaces
+        cardNumber: formData.cardNumber.replace(/\s/g, ''),
         expiryDate: formData.expiryDate,
         cvv: formData.cvv,
         amount: nights * selectedRoom.price,
@@ -90,7 +94,7 @@ const PaymentPage = ({ onNavigate, selectedRoom }) => {
   const closePaymentResult = () => {
     setShowPaymentResult(false);
     if (paymentSuccess) {
-      onNavigate('home');
+      navigate('/home');
     }
   };
 
@@ -108,7 +112,6 @@ const PaymentPage = ({ onNavigate, selectedRoom }) => {
   }
 
   const nights = calculateNights(formData.startDate, formData.endDate);
-
   const totalAmount = nights * selectedRoom.price;
 
   const handleCardNumberChange = (e) => {
@@ -121,7 +124,7 @@ const PaymentPage = ({ onNavigate, selectedRoom }) => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header onNavigate={onNavigate} currentPage="payment" />
+      <Header currentPage="payment" />
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -303,17 +306,17 @@ const PaymentPage = ({ onNavigate, selectedRoom }) => {
             </DialogTitle>
             <DialogDescription className="pt-4">
               {paymentMessage}
-              {paymentSuccess && reservationReference && (
-                <div className="mt-4 p-3 bg-green-50 rounded-lg">
-                  <p className="text-sm font-medium text-green-800">
-                    Reservation Reference:
-                  </p>
-                  <p className="text-sm text-green-700 font-mono break-all">
-                    {reservationReference}
-                  </p>
-                </div>
-              )}
             </DialogDescription>
+            {paymentSuccess && reservationReference && (
+              <div className="mt-4 p-3 bg-green-50 rounded-lg">
+                <p className="text-sm font-medium text-green-800">
+                  Reservation Reference:
+                </p>
+                <p className="text-sm text-green-700 font-mono break-all">
+                  {reservationReference}
+                </p>
+              </div>
+            )}
           </DialogHeader>
           <div className="flex justify-end space-x-2 pt-4">
             <Button onClick={closePaymentResult}>

@@ -5,18 +5,17 @@ import { Loader2, XCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import useFetchRooms from '@/services/useFetchRooms';
 
-const HomePage = ({ onNavigate, onRoomSelect }) => {
+const HomePage = ({ onRoomSelect }) => {
   const { rooms, loading, error } = useFetchRooms();
 
   const handleReservation = (room) => {
     onRoomSelect(room);
-    onNavigate('payment');
   };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header onNavigate={onNavigate} currentPage="home" />
+        <Header currentPage="home" />
         <div className="flex items-center justify-center py-20">
           <div className="text-center">
             <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
@@ -30,7 +29,7 @@ const HomePage = ({ onNavigate, onRoomSelect }) => {
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header onNavigate={onNavigate} currentPage="home" />
+        <Header currentPage="home" />
         <div className="flex items-center justify-center py-20">
           <Alert className="max-w-md">
             <XCircle className="h-4 w-4" />
@@ -43,12 +42,10 @@ const HomePage = ({ onNavigate, onRoomSelect }) => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header onNavigate={onNavigate} currentPage="home" />
+      <Header currentPage="home" />
       <main className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-800 mb-4">
-            Available Rooms
-          </h2>
+          <h2 className="text-3xl font-bold text-gray-800 mb-4">Available Rooms</h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
             Discover our carefully curated selection of rooms, each designed to
             provide you with comfort, luxury, and an unforgettable experience.
@@ -60,7 +57,7 @@ const HomePage = ({ onNavigate, onRoomSelect }) => {
               <RoomCard
                 key={room.id}
                 room={room}
-                onReservation={handleReservation}
+                onReservation={() => handleReservation(room)}
               />
             ))}
           </div>
@@ -73,4 +70,5 @@ const HomePage = ({ onNavigate, onRoomSelect }) => {
     </div>
   );
 };
+
 export default HomePage;
