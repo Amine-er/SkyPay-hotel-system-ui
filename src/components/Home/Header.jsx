@@ -1,8 +1,13 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Hotel, Search, User, Info, ArrowLeft } from 'lucide-react';
+import { useAuth } from '@/components/Auth/AuthContext';
 
-const Header = ({ onNavigate, currentPage }) => {
+const Header = ({ currentPage }) => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
   return (
     <header className="bg-white shadow-md border-b">
       <div className="container mx-auto px-4 py-4">
@@ -16,7 +21,7 @@ const Header = ({ onNavigate, currentPage }) => {
               <Button
                 variant="ghost"
                 className="flex items-center space-x-1"
-                onClick={() => onNavigate('home')}
+                onClick={navigate.bind(null, '/home')}
               >
                 <ArrowLeft className="h-4 w-4" />
                 <span>Back to Rooms</span>
@@ -32,7 +37,7 @@ const Header = ({ onNavigate, currentPage }) => {
             </Button>
             <Button variant="ghost" className="flex items-center space-x-1">
               <User className="h-4 w-4" />
-              <span>Mohamed Amine</span>
+              <span>{user?.name || 'Guest'}</span>
             </Button>
           </nav>
         </div>

@@ -4,16 +4,27 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Eye, EyeOff, User, Lock } from 'lucide-react';
 import { parseJwt } from '@/utils/jwt';
-import { login } from '@/services/auth';
+import { login as loginService } from '@/services/auth';
+import { useAuth } from '../Auth/AuthContext';
 
 const LoginPage = () => {
-  const [credentials, setCredentials] = useState({ username: '', password: '' });
+  const [credentials, setCredentials] = useState({
+    username: '',
+    password: '',
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleInputChange = (e) => {
@@ -26,14 +37,16 @@ const LoginPage = () => {
     setError('');
 
     try {
-      const data = await login(credentials);
+      const data = await loginService(credentials);
+      const accessToken = data.access_token;
       const decoded = parseJwt(data.access_token);
-      const hasRequiredRole = decoded.realm_access?.roles?.some(role => ['ROLE_ADMIN', 'ROLE_USER'].includes(role));
+      const hasRequiredRole = decoded.realm_access?.roles?.some((role) =>
+        ['ROLE_ADMIN', 'ROLE_USER'].includes(role)
+      );
 
-      if (!hasRequiredRole) throw new Error("Access denied");
-
-      sessionStorage.setItem('jwt_token', data.access_token);
-      navigate('/home', { state: { userInfo: decoded } });
+      if (!hasRequiredRole) throw new Error('Access denied');
+      login(accessToken);
+      navigate('/home');
     } catch (err) {
       setError(err.message || 'Login failed');
     } finally {
@@ -49,8 +62,12 @@ const LoginPage = () => {
             <div className="mx-auto mb-4 w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
               <Lock className="w-8 h-8 text-white" />
             </div>
-            <CardTitle className="text-2xl font-bold text-gray-800">Welcome Back</CardTitle>
-            <CardDescription className="text-gray-600">Please sign in to your account</CardDescription>
+            <CardTitle className="text-2xl font-bold text-gray-800">
+              Welcome Back
+            </CardTitle>
+            <CardDescription className="text-gray-600">
+              Please sign in to your account
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-4">
@@ -84,16 +101,26 @@ const LoginPage = () => {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-3 text-gray-400"
                   >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showPassword ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
                   </button>
                 </div>
               </div>
               {error && (
                 <Alert className="border-red-200 bg-red-50">
-                  <AlertDescription className="text-red-800">{error}</AlertDescription>
+                  <AlertDescription className="text-red-800">
+                    {error}
+                  </AlertDescription>
                 </Alert>
               )}
-              <Button onClick={handleLogin} className="w-full" disabled={loading}>
+              <Button
+                onClick={handleLogin}
+                className="w-full"
+                disabled={loading}
+              >
                 {loading ? 'Signing in...' : 'Sign In'}
               </Button>
             </div>

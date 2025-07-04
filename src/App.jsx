@@ -3,11 +3,13 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
+  Navigate,
   useNavigate,
 } from 'react-router-dom';
 import HomePage from './components/Home/HomePage';
 import PaymentPage from './components/Payment/PaymentPage';
 import LoginPage from './components/Login/LoginPage';
+import PrivateRoute from './components/Auth/PrivateRoute';
 
 const App = () => {
   const [selectedRoom, setSelectedRoom] = useState(null);
@@ -18,12 +20,21 @@ const App = () => {
         <Route path="/" element={<LoginPage />} />
         <Route
           path="/home"
-          element={<HomePageWrapper setSelectedRoom={setSelectedRoom} />}
+          element={
+            <PrivateRoute>
+              <HomePageWrapper setSelectedRoom={setSelectedRoom} />
+            </PrivateRoute>
+          }
         />
         <Route
           path="/payment"
-          element={<PaymentPage selectedRoom={selectedRoom} />}
+          element={
+            <PrivateRoute>
+              <PaymentPage selectedRoom={selectedRoom} />
+            </PrivateRoute>
+          }
         />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );
