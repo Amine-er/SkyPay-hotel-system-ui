@@ -9,33 +9,36 @@ import {
 import HomePage from './components/Home/HomePage';
 import PaymentPage from './components/Payment/PaymentPage';
 import LoginPage from './components/Login/LoginPage';
-import PrivateRoute from './components/Auth/PrivateRoute';
+import { AuthProvider } from '@/components/Auth/AuthContext';
+import RequireAuth from '@/components/Auth/RequireAuth';
 
 const App = () => {
   const [selectedRoom, setSelectedRoom] = useState(null);
 
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<LoginPage />} />
-        <Route
-          path="/home"
-          element={
-            <PrivateRoute>
-              <HomePageWrapper setSelectedRoom={setSelectedRoom} />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/payment"
-          element={
-            <PrivateRoute>
-              <PaymentPage selectedRoom={selectedRoom} />
-            </PrivateRoute>
-          }
-        />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <AuthProvider>
+        <Routes>
+          <Route path="/" element={<LoginPage />} />
+          <Route
+            path="/home"
+            element={
+              <RequireAuth allowedRoles={['ROLE_USER', 'ROLE_ADMIN']}>
+                <HomePageWrapper setSelectedRoom={setSelectedRoom} />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/payment"
+            element={
+              <RequireAuth allowedRoles={['ROLE_USER', 'ROLE_ADMIN']}>
+                <PaymentPage selectedRoom={selectedRoom} />
+              </RequireAuth>
+            }
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </AuthProvider>
     </Router>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -12,8 +12,6 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Eye, EyeOff, User, Lock } from 'lucide-react';
-import { parseJwt } from '@/utils/jwt';
-import { login as loginService } from '@/services/auth';
 import { useAuth } from '../Auth/AuthContext';
 
 const LoginPage = () => {
@@ -24,8 +22,14 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/home');
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleInputChange = (e) => {
     setCredentials({ ...credentials, [e.target.name]: e.target.value });
@@ -35,18 +39,13 @@ const LoginPage = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
-
     try {
-      const data = await loginService(credentials);
-      const accessToken = data.access_token;
-      const decoded = parseJwt(data.access_token);
-      const hasRequiredRole = decoded.realm_access?.roles?.some((role) =>
-        ['ROLE_ADMIN', 'ROLE_USER'].includes(role)
-      );
-
-      if (!hasRequiredRole) throw new Error('Access denied');
-      login(accessToken);
-      navigate('/home');
+      const roles = await login(credentials);
+      if (roles.includes('ROLE_USER')) {
+        navigate('/home');
+      } else {
+        navigate('/');
+      }
     } catch (err) {
       setError(err.message || 'Login failed');
     } finally {

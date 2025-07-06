@@ -1,11 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Hotel, Search, User, Info, ArrowLeft } from 'lucide-react';
+import { Hotel, Search, User, Info, ArrowLeft, LogOut } from 'lucide-react';
 import { useAuth } from '@/components/Auth/AuthContext';
 
 const Header = ({ currentPage }) => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   return (
@@ -34,6 +34,10 @@ const Header = ({ currentPage }) => {
             <Button variant="ghost" className="flex items-center space-x-1">
               <Info className="h-4 w-4" />
               <span>About</span>
+            </Button>
+            <Button variant="ghost" className="flex items-center space-x-1" onClick={logout}>
+              <LogOut className="h-4 w-4" />
+              <span>Logout</span>
             </Button>
             <Button variant="ghost" className="flex items-center space-x-1">
               <User className="h-4 w-4" />
