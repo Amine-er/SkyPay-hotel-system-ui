@@ -5,7 +5,9 @@ export const login = async ({ username, password }) => {
   formData.append('password', password);
   formData.append('grant_type', 'password');
 
-  const response = await fetch('http://localhost:9090/realms/hotel-realm/protocol/openid-connect/token', {
+  const realmUrl = import.meta.env.VITE_KEYCLOAK_REALM_URL;
+
+  const response = await fetch(realmUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',

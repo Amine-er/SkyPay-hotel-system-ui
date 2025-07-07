@@ -8,9 +8,10 @@ import {
 } from 'react-router-dom';
 import HomePage from './components/Home/HomePage';
 import PaymentPage from './components/Payment/PaymentPage';
-import LoginPage from './components/Login/LoginPage';
-import { AuthProvider } from '@/components/Auth/AuthContext';
-import RequireAuth from '@/components/Auth/RequireAuth';
+import SignInPage from './components/Login/SignInPage';
+import SignUpPage from './components/Login/SignUpPage';
+import { AuthProvider } from '@/auth/AuthContext';
+import RequireAuth from '@/auth/RequireAuth';
 
 const App = () => {
   const [selectedRoom, setSelectedRoom] = useState(null);
@@ -19,7 +20,8 @@ const App = () => {
     <Router>
       <AuthProvider>
         <Routes>
-          <Route path="/" element={<LoginPage />} />
+          <Route path="/signin" element={<SignInPage />} />
+          <Route path="/signup" element={<SignUpPage />} />
           <Route
             path="/home"
             element={
@@ -36,7 +38,7 @@ const App = () => {
               </RequireAuth>
             }
           />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<Navigate to="/signin" replace />} />
         </Routes>
       </AuthProvider>
     </Router>

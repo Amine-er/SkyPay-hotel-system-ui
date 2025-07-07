@@ -12,9 +12,9 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Eye, EyeOff, User, Lock } from 'lucide-react';
-import { useAuth } from '../Auth/AuthContext';
+import { useAuth } from '../../auth/AuthContext';
 
-const LoginPage = () => {
+const SignInPage = () => {
   const [credentials, setCredentials] = useState({
     username: '',
     password: '',
@@ -44,7 +44,7 @@ const LoginPage = () => {
       if (roles.includes('ROLE_USER')) {
         navigate('/home');
       } else {
-        navigate('/');
+        navigate('/signin');
       }
     } catch (err) {
       setError(err.message || 'Login failed');
@@ -122,6 +122,20 @@ const LoginPage = () => {
               >
                 {loading ? 'Signing in...' : 'Sign In'}
               </Button>
+              <div className="text-center mt-4">
+                <p className="text-sm text-gray-600">
+                  Don't have an account?{' '}
+                  <button
+                    onClick={() => {
+                      navigate('/signup');
+                      setError('');
+                    }}
+                    className="text-blue-600 hover:text-blue-800 font-medium hover:underline"
+                  >
+                    Sign up here
+                  </button>
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -130,4 +144,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default SignInPage;
