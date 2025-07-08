@@ -44,7 +44,7 @@ const SignInPage = () => {
       if (roles.includes('ROLE_USER')) {
         navigate('/home');
       } else {
-        navigate('/signin');
+        setError('You do not have permission to access this application.');
       }
     } catch (err) {
       setError(err.message || 'Login failed');

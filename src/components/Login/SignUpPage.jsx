@@ -12,12 +12,16 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Eye, EyeOff, Lock, Mail, UserPlus, ArrowLeft } from 'lucide-react';
+import { signup } from '@/services/auth';
 
 const SignUpPage = () => {
   const [signupData, setSignupData] = useState({
+    username: '',
     firstName: '',
     lastName: '',
     email: '',
+    phone: '',
+    address: '',
     password: '',
     confirmPassword: '',
   });
@@ -47,17 +51,26 @@ const SignUpPage = () => {
     }
 
     try {
-      // For demonstration, we'll simulate a successful signup
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const userPayload = {
+        username: signupData.email.split('@')[0],
+        password: signupData.password,
+        email: signupData.email,
+        firstName: signupData.firstName,
+        lastName: signupData.lastName,
+        phone: signupData.phone,
+        address: signupData.address,
+      };
 
-      // Simulate successful user creation
-      setSuccess(
-        'Account created successfully! Please sign in with your credentials.'
-      );
+      await signup(userPayload);
+
+      setSuccess('Account created successfully! Please sign in.');
       setSignupData({
+        username: '',
         firstName: '',
         lastName: '',
         email: '',
+        phone: '',
+        address: '',
         password: '',
         confirmPassword: '',
       });
@@ -157,6 +170,44 @@ const SignUpPage = () => {
                     onKeyPress={(e) => e.key === 'Enter' && handleSignup(e)}
                   />
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label
+                  htmlFor="phone"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Phone Number
+                </Label>
+                <Input
+                  id="phone"
+                  name="phone"
+                  type="text"
+                  placeholder="+1234567890"
+                  value={signupData.phone}
+                  onChange={handleSignupInputChange}
+                  className="h-12 border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                  onKeyPress={(e) => e.key === 'Enter' && handleSignup(e)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label
+                  htmlFor="address"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Address
+                </Label>
+                <Input
+                  id="address"
+                  name="address"
+                  type="text"
+                  placeholder="123 Main St, City, Country"
+                  value={signupData.address}
+                  onChange={handleSignupInputChange}
+                  className="h-12 border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                  onKeyPress={(e) => e.key === 'Enter' && handleSignup(e)}
+                />
               </div>
 
               <div className="space-y-2">
