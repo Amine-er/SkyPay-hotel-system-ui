@@ -2,11 +2,18 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Hotel, Search, User, Info, ArrowLeft, LogOut } from 'lucide-react';
-import { useAuth } from '@/auth/AuthContext';
+import { useDispatch, useSelector } from 'react-redux';
+import { logout } from '@/store/slices/authSlice';
 
 const Header = ({ currentPage }) => {
-  const { user, logout } = useAuth();
+  const user = useSelector((state) => state.auth.user);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/signin');
+  };
 
   return (
     <header className="bg-white shadow-md border-b">
@@ -38,7 +45,7 @@ const Header = ({ currentPage }) => {
             <Button
               variant="ghost"
               className="flex items-center space-x-1"
-              onClick={logout}
+              onClick={handleLogout}
             >
               <LogOut className="h-4 w-4" />
               <span>Logout</span>

@@ -12,7 +12,10 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Eye, EyeOff, User, Lock } from 'lucide-react';
-import { useAuth } from '../../auth/AuthContext';
+import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { jwtDecode } from 'jwt-decode';
+import { login } from '@/store/slices/authSlice';
 
 const SignInPage = () => {
   const [credentials, setCredentials] = useState({
@@ -22,10 +25,12 @@ const SignInPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const { login, isAuthenticated } = useAuth();
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
+    console.log('isAuthenticated:', isAuthenticated);
     if (isAuthenticated) {
       navigate('/home');
     }
@@ -40,11 +45,20 @@ const SignInPage = () => {
     setLoading(true);
     setError('');
     try {
-      const roles = await login(credentials);
-      if (roles.includes('ROLE_USER')) {
-        navigate('/home');
+      const resultAction = await dispatch(login(credentials));
+      if (login.fulfilled.match(resultAction)) {
+        const token = resultAction.payload;
+        const decoded = jwtDecode(token);
+        console.log('Login successful:', decoded);
+
+        const roles = decoded?.realm_access?.roles || [];
+        if (roles.includes('ROLE_USER')) {
+          navigate('/home');
+        } else {
+          setError('You do not have permission to access this application.');
+        }
       } else {
-        setError('You do not have permission to access this application.');
+        throw new Error(resultAction.error.message);
       }
     } catch (err) {
       setError(err.message || 'Login failed');

@@ -18,15 +18,18 @@ import {
 } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CreditCard, CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { useSelector } from 'react-redux';
 
-const PaymentPage = ({ selectedRoom }) => {
+const PaymentPage = () => {
   const navigate = useNavigate();
-
+  const selectedRoom = useSelector((state) => state.room.selected);
+  const user = useSelector((state) => state.auth.user);
   const [formData, setFormData] = useState({
     startDate: '',
     endDate: '',
-    userId: 1,
+    userId: user?.userId || '',
     fullName: '',
+    email: user?.email || '',
     cardNumber: '',
     expiryDate: '',
     cvv: '',
@@ -61,6 +64,7 @@ const PaymentPage = ({ selectedRoom }) => {
       const reservationData = {
         userId: formData.userId,
         fullName: formData.fullName,
+        email: formData.email,
         cardNumber: formData.cardNumber.replace(/\s/g, ''),
         expiryDate: formData.expiryDate,
         cvv: formData.cvv,

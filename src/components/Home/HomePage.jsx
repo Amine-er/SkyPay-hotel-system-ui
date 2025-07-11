@@ -1,15 +1,21 @@
 import React from 'react';
 import Header from '@/components/Home/Header';
-import RoomCard from '@/components/Home/RoomCard';
+import RoomCard from '@/components/Room/RoomCard';
 import { Loader2, XCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import useFetchRooms from '@/services/useFetchRooms';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { selectRoom } from '@/store/slices/roomSlice';
 
-const HomePage = ({ onRoomSelect }) => {
+const HomePage = () => {
   const { rooms, loading, error } = useFetchRooms();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleReservation = (room) => {
-    onRoomSelect(room);
+    dispatch(selectRoom(room));
+    navigate('/payment');
   };
 
   if (loading) {
@@ -45,7 +51,9 @@ const HomePage = ({ onRoomSelect }) => {
       <Header currentPage="home" />
       <main className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-800 mb-4">Available Rooms</h2>
+          <h2 className="text-3xl font-bold text-gray-800 mb-4">
+            Available Rooms
+          </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
             Discover our carefully curated selection of rooms, each designed to
             provide you with comfort, luxury, and an unforgettable experience.
