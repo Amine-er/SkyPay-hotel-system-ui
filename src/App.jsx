@@ -10,6 +10,7 @@ import PaymentPage from './components/Payment/PaymentPage';
 import SignInPage from './components/Login/SignInPage';
 import SignUpPage from './components/Login/SignUpPage';
 import RequireAuth from '@/auth/RequireAuth';
+import RoomDetailsPage from './components/Room/RoomDetailsPage';
 
 const App = () => {
   return (
@@ -22,6 +23,14 @@ const App = () => {
           element={
             <RequireAuth allowedRoles={['ROLE_USER', 'ROLE_ADMIN']}>
               <HomePage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/rooms/:roomId"
+          element={
+            <RequireAuth allowedRoles={['ROLE_USER', 'ROLE_ADMIN']}>
+              <RoomDetailsPage />
             </RequireAuth>
           }
         />

@@ -15,7 +15,7 @@ const HomePage = () => {
 
   const handleReservation = (room) => {
     dispatch(selectRoom(room));
-    navigate('/payment');
+    navigate('/rooms/' + room.id);
   };
 
   if (loading) {
