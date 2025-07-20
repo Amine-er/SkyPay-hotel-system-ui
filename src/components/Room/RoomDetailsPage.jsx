@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Card,
   CardContent,
@@ -19,8 +19,7 @@ import {
   ThumbsUp,
 } from 'lucide-react';
 import { useSelector } from 'react-redux';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+import { useRoomDetails } from '@/services/useRoomDetails';
 
 const mockRoom = {
   amenities: [
@@ -36,32 +35,9 @@ const mockRoom = {
 
 const RoomDetailsPage = () => {
   const selectedRoom = useSelector((state) => state.room.selected);
-  const [reviews, setReviews] = useState([]);
-  const [users, setUsers] = useState([]);
-  //const [loading, setLoading] = useState(true);
+  const { reviews, users } = useRoomDetails(selectedRoom.id);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showAllReviews, setShowAllReviews] = useState(false);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [reviewsRes, usersRes] = await Promise.all([
-          fetch(`${API_BASE_URL}/reviews/room/${selectedRoom.id}`),
-          fetch(`${API_BASE_URL}/users`),
-        ]);
-        const reviewsData = await reviewsRes.json();
-        const usersData = await usersRes.json();
-        setReviews(reviewsData);
-        setUsers(usersData);
-      } catch (err) {
-        console.error('Error loading data:', err);
-      } finally {
-        //setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [selectedRoom.id]);
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev + 1) % selectedRoom.imageUrl.length);
