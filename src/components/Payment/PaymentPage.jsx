@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import makeReservation from '@/services/makeReservation';
 import formatRoomType from '@/utils/formatRoomType';
@@ -17,16 +17,26 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { CreditCard, CheckCircle, XCircle, Loader2 } from 'lucide-react';
-import { useSelector } from 'react-redux';
+import {
+  CreditCard,
+  CheckCircle,
+  XCircle,
+  Loader2,
+  Calendar,
+} from 'lucide-react';
+import { useSelector, useDispatch } from 'react-redux';
+import { clearReservationDates } from '@/store/slices/roomSlice';
 
 const PaymentPage = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const selectedRoom = useSelector((state) => state.room.selected);
+  const reservationDates = useSelector((state) => state.room.reservationDates);
   const user = useSelector((state) => state.auth.user);
+
   const [formData, setFormData] = useState({
-    startDate: '',
-    endDate: '',
+    startDate: reservationDates.checkInDate || '',
+    endDate: reservationDates.checkOutDate || '',
     userId: user?.userId || '',
     fullName: '',
     email: user?.email || '',
@@ -40,6 +50,15 @@ const PaymentPage = () => {
   const [paymentMessage, setPaymentMessage] = useState('');
   const [reservationReference, setReservationReference] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+
+  // Update form data when Redux reservation dates change
+  useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      startDate: reservationDates.checkInDate || '',
+      endDate: reservationDates.checkOutDate || '',
+    }));
+  }, [reservationDates]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -98,6 +117,8 @@ const PaymentPage = () => {
   const closePaymentResult = () => {
     setShowPaymentResult(false);
     if (paymentSuccess) {
+      // Clear reservation dates from Redux on successful payment
+      dispatch(clearReservationDates());
       navigate('/home');
     }
   };
@@ -132,6 +153,7 @@ const PaymentPage = () => {
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Reservation Summary */}
             <div className="bg-white rounded-lg shadow-md p-6">
               <h2 className="text-2xl font-bold text-gray-800 mb-4">
                 Reservation Summary
@@ -148,6 +170,49 @@ const PaymentPage = () => {
                   </h3>
                   <p className="text-gray-600">{selectedRoom.description}</p>
                 </div>
+
+                {/* Reservation Dates Display */}
+                {formData.startDate && formData.endDate && (
+                  <div className="bg-blue-50 p-4 rounded-lg">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Calendar className="w-4 h-4 text-blue-600" />
+                      <span className="font-medium text-blue-800">
+                        Your Stay
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <p className="text-gray-600">Check-in</p>
+                        <p className="font-semibold">
+                          {new Date(formData.startDate).toLocaleDateString(
+                            'en-US',
+                            {
+                              weekday: 'short',
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                            }
+                          )}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600">Check-out</p>
+                        <p className="font-semibold">
+                          {new Date(formData.endDate).toLocaleDateString(
+                            'en-US',
+                            {
+                              weekday: 'short',
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                            }
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div className="border-t pt-4">
                   <div className="flex justify-between mb-2">
                     <span>Room ID:</span>
@@ -181,11 +246,13 @@ const PaymentPage = () => {
               </div>
             </div>
 
+            {/* Payment Form */}
             <div className="bg-white rounded-lg shadow-md p-6">
               <h2 className="text-2xl font-bold text-gray-800 mb-6">
                 Payment Details
               </h2>
-              <div className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Date inputs - pre-filled but editable */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="startDate">Check-in Date</Label>
@@ -197,6 +264,7 @@ const PaymentPage = () => {
                       onChange={handleInputChange}
                       required
                       min={new Date().toISOString().split('T')[0]}
+                      className="mt-1"
                     />
                   </div>
                   <div>
@@ -212,6 +280,7 @@ const PaymentPage = () => {
                         formData.startDate ||
                         new Date().toISOString().split('T')[0]
                       }
+                      className="mt-1"
                     />
                   </div>
                 </div>
@@ -226,12 +295,13 @@ const PaymentPage = () => {
                     value={formData.fullName}
                     onChange={handleInputChange}
                     required
+                    className="mt-1"
                   />
                 </div>
 
                 <div>
                   <Label htmlFor="cardNumber">Card Number</Label>
-                  <div className="relative">
+                  <div className="relative mt-1">
                     <Input
                       id="cardNumber"
                       name="cardNumber"
@@ -256,6 +326,7 @@ const PaymentPage = () => {
                       value={formData.expiryDate}
                       onChange={handleInputChange}
                       required
+                      className="mt-1"
                     />
                   </div>
                   <div>
@@ -269,12 +340,13 @@ const PaymentPage = () => {
                       onChange={handleInputChange}
                       maxLength={4}
                       required
+                      className="mt-1"
                     />
                   </div>
                 </div>
 
                 <Button
-                  onClick={handleSubmit}
+                  type="submit"
                   disabled={isProcessing}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg disabled:opacity-50"
                 >
@@ -289,7 +361,7 @@ const PaymentPage = () => {
                     }MAD`
                   )}
                 </Button>
-              </div>
+              </form>
             </div>
           </div>
         </div>

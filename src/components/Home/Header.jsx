@@ -24,7 +24,8 @@ const Header = ({ currentPage }) => {
             <h1 className="text-2xl font-bold text-gray-800">SkyPay Hotel</h1>
           </div>
           <nav className="flex items-center space-x-6">
-            {currentPage?.startsWith('/rooms') && (
+            {(currentPage?.startsWith('/rooms') ||
+              currentPage?.startsWith('payment')) && (
               <Button
                 variant="ghost"
                 className="flex items-center space-x-1"

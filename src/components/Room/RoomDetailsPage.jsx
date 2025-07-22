@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Card,
   CardContent,
@@ -9,6 +10,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import Header from '@/components/Home/Header';
 import {
   Star,
@@ -17,8 +20,12 @@ import {
   MapPin,
   Users,
   ThumbsUp,
+  Calendar,
+  CreditCard,
 } from 'lucide-react';
-import { useSelector } from 'react-redux';
+import calculateNights from '@/utils/calculateNights';
+import { useSelector, useDispatch } from 'react-redux';
+import { setReservationDates } from '@/store/slices/roomSlice';
 import { useRoomDetails } from '@/services/useRoomDetails';
 
 const mockRoom = {
@@ -34,10 +41,25 @@ const mockRoom = {
 };
 
 const RoomDetailsPage = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const selectedRoom = useSelector((state) => state.room.selected);
+  const reservationDates = useSelector((state) => state.room.reservationDates);
   const { reviews, users } = useRoomDetails(selectedRoom.id);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showAllReviews, setShowAllReviews] = useState(false);
+
+  const [checkInDate, setCheckInDate] = useState(
+    reservationDates.checkInDate || ''
+  );
+  const [checkOutDate, setCheckOutDate] = useState(
+    reservationDates.checkOutDate || ''
+  );
+
+  useEffect(() => {
+    setCheckInDate(reservationDates.checkInDate || '');
+    setCheckOutDate(reservationDates.checkOutDate || '');
+  }, [reservationDates]);
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev + 1) % selectedRoom.imageUrl.length);
@@ -60,6 +82,51 @@ const RoomDetailsPage = () => {
       />
     ));
 
+  const handleCheckInChange = (e) => {
+    const newCheckInDate = e.target.value;
+    setCheckInDate(newCheckInDate);
+
+    dispatch(
+      setReservationDates({
+        checkInDate: newCheckInDate,
+        checkOutDate: checkOutDate,
+      })
+    );
+  };
+
+  const handleCheckOutChange = (e) => {
+    const newCheckOutDate = e.target.value;
+    setCheckOutDate(newCheckOutDate);
+
+    dispatch(
+      setReservationDates({
+        checkInDate: checkInDate,
+        checkOutDate: newCheckOutDate,
+      })
+    );
+  };
+
+  const handleReservation = () => {
+    if (!checkInDate || !checkOutDate) {
+      alert('Please select both check-in and check-out dates');
+      return;
+    }
+
+    if (new Date(checkOutDate) <= new Date(checkInDate)) {
+      alert('Check-out date must be after check-in date');
+      return;
+    }
+
+    dispatch(
+      setReservationDates({
+        checkInDate: checkInDate,
+        checkOutDate: checkOutDate,
+      })
+    );
+
+    navigate('/payment');
+  };
+
   const averageRating =
     reviews.reduce((sum, r) => sum + r.rating, 0) / (reviews.length || 1);
   const ratingBreakdown = reviews.reduce((acc, r) => {
@@ -68,6 +135,8 @@ const RoomDetailsPage = () => {
   }, {});
 
   const displayedReviews = showAllReviews ? reviews : reviews.slice(0, 4);
+  const nights = calculateNights(checkInDate, checkOutDate);
+  const totalPrice = nights * selectedRoom.price;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -132,6 +201,7 @@ const RoomDetailsPage = () => {
                 </div>
               </CardContent>
             </Card>
+
             {/* Reviews Section */}
             <Card>
               <CardHeader>
@@ -223,6 +293,90 @@ const RoomDetailsPage = () => {
                     </Button>
                   </div>
                 )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Reservation Sidebar */}
+          <div className="lg:col-span-1">
+            <Card className="sticky top-8">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Calendar className="w-5 h-5" />
+                  <span>Reserve this room</span>
+                </CardTitle>
+                <div className="flex items-baseline space-x-2">
+                  <span className="text-2xl font-bold text-blue-600">
+                    {selectedRoom.price}MAD
+                  </span>
+                  <span className="text-gray-500">per night</span>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Date Selection */}
+                <div className="grid grid-cols-1 gap-3">
+                  <div>
+                    <Label htmlFor="checkIn" className="text-sm font-medium">
+                      Check-in
+                    </Label>
+                    <Input
+                      id="checkIn"
+                      type="date"
+                      value={checkInDate}
+                      onChange={handleCheckInChange}
+                      min={new Date().toISOString().split('T')[0]}
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="checkOut" className="text-sm font-medium">
+                      Check-out
+                    </Label>
+                    <Input
+                      id="checkOut"
+                      type="date"
+                      value={checkOutDate}
+                      onChange={handleCheckOutChange}
+                      min={
+                        checkInDate || new Date().toISOString().split('T')[0]
+                      }
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
+
+                {/* Price Breakdown */}
+                {nights > 0 && (
+                  <div className="space-y-2 pt-4 border-t">
+                    <div className="flex justify-between text-sm">
+                      <span>
+                        {selectedRoom.price}MAD × {nights} night
+                        {nights > 1 ? 's' : ''}
+                      </span>
+                      <span>{totalPrice}MAD</span>
+                    </div>
+                    <Separator />
+                    <div className="flex justify-between font-semibold">
+                      <span>Total</span>
+                      <span>{totalPrice}MAD</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Reserve Button */}
+                <Button
+                  onClick={handleReservation}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                  size="lg"
+                >
+                  <CreditCard className="w-4 h-4 mr-2" />
+                  Reserve & Pay
+                </Button>
+
+                {/* Additional Info */}
+                <div className="text-xs text-gray-500 text-center pt-2">
+                  You won't be charged yet
+                </div>
               </CardContent>
             </Card>
           </div>
