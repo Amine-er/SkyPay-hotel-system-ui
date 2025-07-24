@@ -11,11 +11,13 @@ import SignInPage from './components/Login/SignInPage';
 import SignUpPage from './components/Login/SignUpPage';
 import RequireAuth from '@/auth/RequireAuth';
 import RoomDetailsPage from './components/Room/RoomDetailsPage';
+import LandingPage from './components/Landing/LandingPage';
 
 const App = () => {
   return (
     <Router>
       <Routes>
+        <Route path="/" element={<LandingPage />} />
         <Route path="/signin" element={<SignInPage />} />
         <Route path="/signup" element={<SignUpPage />} />
         <Route
@@ -42,7 +44,7 @@ const App = () => {
             </RequireAuth>
           }
         />
-        <Route path="*" element={<Navigate to="/signin" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );
