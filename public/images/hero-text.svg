@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 224 150">
+  <!-- Background -->
+  <rect width="224" height="150" fill="#1a1a1a" opacity="0.1"/>
+  
+  <!-- Decorative clouds - left side -->
+  <g fill="white" opacity="0.8">
+    <path d="M15 45 Q20 35, 30 45 Q25 55, 15 45 Z"/>
+    <path d="M10 60 Q15 50, 25 60 Q20 70, 10 60 Z"/>
+    <circle cx="33" cy="52" r="1.5"/>
+    <circle cx="8" cy="68" r="1"/>
+  </g>
+  
+  <!-- Decorative clouds - right side -->
+  <g fill="white" opacity="0.8">
+    <path d="M194 45 Q189 35, 179 45 Q184 55, 194 45 Z"/>
+    <path d="M199 60 Q194 50, 184 60 Q189 70, 199 60 Z"/>
+    <circle cx="176" cy="52" r="1.5"/>
+    <circle cx="201" cy="68" r="1"/>
+  </g>
+  
+  <!-- Crown/Hotel emblem -->
+  <g fill="white" transform="translate(112, 35)">
+    <path d="M-12 -5 L-6 -12 L0 -10 L6 -12 L12 -5 L10 3 L-10 3 Z" stroke="white" stroke-width="0.5" fill="white" opacity="0.9"/>
+    <circle cx="-6" cy="-8" r="0.8" fill="white"/>
+    <circle cx="0" cy="-6" r="0.8" fill="white"/>
+    <circle cx="6" cy="-8" r="0.8" fill="white"/>
+    <line x1="-8" y1="0" x2="8" y2="0" stroke="white" stroke-width="0.5" opacity="0.7"/>
+  </g>
+  
+  <!-- Main text: LUXE -->
+  <g fill="white">
+    <text x="112" y="85" font-family="serif" font-size="32" font-weight="300" letter-spacing="6px" text-anchor="middle">
+      LUXE
+    </text>
+  </g>
+  
+  <!-- Decorative line under LUXE -->
+  <g fill="white">
+    <line x1="72" y1="92" x2="152" y2="92" stroke="white" stroke-width="1" opacity="0.6"/>
+    <circle cx="75" cy="92" r="1.5" fill="white" opacity="0.8"/>
+    <circle cx="149" cy="92" r="1.5" fill="white" opacity="0.8"/>
+  </g>
+  
+  <!-- Secondary text: HOTELS -->
+  <g fill="white">
+    <text x="112" y="110" font-family="sans-serif" font-size="18" font-weight="100" letter-spacing="4px" text-anchor="middle">
+      HOTELS
+    </text>
+  </g>
+  
+</svg>
