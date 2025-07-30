@@ -1,17 +1,19 @@
 import React from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/all';
-import NavBar from './NavBar';
-import Hero from './Hero';
-
-gsap.registerPlugin(ScrollTrigger);
+import Header from './Header';
+import HeroSection from './HeroSection';
+import FeaturesSection from './FeaturesSection';
+import CallToAction from './CallToAction';
+import Footer from './Footer';
 
 const LandingPage = () => {
   return (
-    <main>
-      <NavBar />
-      <Hero />
-    </main>
+    <div>
+      <Header />
+      <HeroSection />
+      <FeaturesSection />
+      <CallToAction />
+      <Footer />
+    </div>
   );
 };
 

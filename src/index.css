@@ -1,152 +1,21 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
-@font-face {
-  font-family: 'Long';
-  src: url('/fonts/long.woff');
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-@font-face {
-  font-family: 'Round';
-  src: url('/fonts/round.woff');
-}
-
-@font-face {
-  font-family: 'Round Bold';
-  font-weight: bold;
-  src: url('/fonts/round-bold.woff');
-}
-
-@theme {
-  --font-sans: 'Round', sans-serif;
-  --font-long: 'Long', sans-serif;
-  --font-round-bold: 'Round Bold', sans-serif;
-  --color-yellow: #fff9cb;
-  --color-pink: #ffb0c4;
-  --breakpoint-sm: 40rem;
-  --breakpoint-xs: 20rem;
-  --breakpoint-3xl: 120rem;
-}
-
-body {
-  width: 100dvw;
-  overflow-x: hidden;
-  font-family: 'Round', sans-serif;
-  background-color: black;
-}
-
-main {
-  background: linear-gradient(
-    223.17deg,
-    rgb(28, 24, 41) 0%,
-    rgb(27, 24, 40) 8.61%,
-    rgb(25, 23, 36) 17.21%,
-    rgb(22, 21, 32) 25.82%,
-    rgb(20, 19, 28) 34.42%,
-    rgb(18, 18, 24) 43.03%,
-    rgb(17, 17, 23) 51.63%
-  );
-}
-
-@layer utilities {
-  .flex-center {
-    @apply flex justify-center items-center;
-  }
-  .col-center {
-    @apply flex flex-col justify-center items-center;
-  }
-  .abs-center {
-    @apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2;
-  }
-}
-
-@layer components {
-  main {
-    @apply w-dvw overflow-x-hidden;
-  }
-  nav {
-    @apply fixed top-0 left-0 w-full flex justify-between items-center md:p-16 p-5 z-[100];
-  }
-  .gradient-title {
-    @apply md:text-[8rem] text-[5rem] font-round-bold !font-extrabold uppercase md:leading-[7rem] leading-[4.5rem] text-center bg-gradient-to-r from-pink-400 via-red-400 to-orange-400 bg-clip-text text-transparent;
-  }
-  .hero-section {
-    @apply w-dvw h-dvh relative overflow-hidden;
-
-    .scale-out {
-      @apply object-cover md:scale-125 h-full;
-    }
-    .title-logo {
-      @apply absolute h-full md:scale-125 top-0 object-cover;
-    }
-    .trailer-logo {
-      @apply absolute -bottom-5 w-48 left-1/2 -translate-x-1/2;
-    }
-    .play-img {
-      @apply rounded-full md:size-28 size-20 bg-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex justify-center items-center;
-    }
-    .fake-logo-wrapper {
-      @apply absolute z-50 xs:top-[9.5rem] sm:top-[12.8rem] md:top-[8.5rem] 2xl:top-44 3xl:top-48 left-1/2 -translate-x-1/2;
-    }
-    .overlay-logo {
-      @apply size-full object-cover opacity-0 w-60 md:w-60 2xl:w-72 3xl:w-80;
-    }
-  }
-  .first-vd-wrapper {
-    .first-vd {
-      @apply size-full object-cover md:[object-position:50%_center] [object-position:75%_center];
-    }
-  }
-  .entrance-message {
-    @apply absolute inset-0 w-full h-dvh overflow-hidden z-20 opacity-100;
-
-    .entrance-logo {
-      @apply 2xl:w-72 3xl:w-80 md:w-60 w-48 absolute xs:top-[9.5rem] sm:top-[12.8rem] md:top-[8.5rem] 2xl:top-44 3xl:top-48 left-1/2 -translate-x-1/2;
-    }
-
-    .text-wrapper {
-      @apply mt-40 md:mt-60 2xl:mt-44 3xl:top-48;
-    }
-  }
-  .final {
-    @apply relative h-dvh overflow-hidden;
-
-    .final-content {
-      @apply scale-110;
-    }
-  }
-
-  .final-message {
-    @apply absolute w-full h-dvh overflow-hidden z-50 opacity-100;
-  }
-}
-
-.black-gradient-bg {
-  background: linear-gradient(
-    223.17deg,
-    rgb(28, 24, 41) 0%,
-    rgb(27, 24, 40) 8.61%,
-    rgb(25, 23, 36) 17.21%,
-    rgb(22, 21, 32) 25.82%,
-    rgb(20, 19, 28) 34.42%,
-    rgb(18, 18, 24) 43.03%,
-    rgb(17, 17, 23) 51.63%
-  );
-}
-
-.entrance-message {
-  mask-image: radial-gradient(circle at 50% 100vh, black 0%, transparent 0%);
-  mask-repeat: no-repeat;
-  mask-size: 100% 100%;
-}
-
-.mask-wrapper {
-  mask-image: url('/images/big-hero-text.svg');
-  mask-repeat: no-repeat;
-}
-
-.animated-gradient-bg {
-  background: linear-gradient(135deg, #1e2a52 0%, #6e4b91 100%);
+html,
+body,
+#root,
+.app {
+  height: 100%;
+  width: 100%;
+  @apply text-sm;
+  @apply bg-white;
+  @apply dark:bg-black;
 }
 
 @custom-variant dark (&:is(.dark *));
@@ -256,13 +125,4 @@ main {
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
-}
-
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
 }
